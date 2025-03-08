@@ -51,7 +51,7 @@ export default function CampsPage() {
                    
                   </div>
                 </div>
-                <Button>Book Slot</Button>
+                <Button onClick={()=>{console.log(camps)}}>Book Slot</Button>
               </div>
             ))}
           </div>
