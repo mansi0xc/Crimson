@@ -11,8 +11,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const rubik = Rubik({ subsets: ["latin"], variable: "--font-rubik" })
 
 export const metadata: Metadata = {
-  title: "Elixir - Blood Donation Platform",
-  description: "Donate Blood. Save Lives. Earn NFTs.",
+  title: "Crimson - Blood & Organ Donation Platform",
+  description: "Donate Blood & Organs. Save Lives. Earn NFTs.",
 }
 
 export default function RootLayout({
