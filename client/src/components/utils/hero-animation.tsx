@@ -90,7 +90,7 @@ export default function HeroAnimation() {
           </motion.div>
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1, type: "spring" }}>
-              <div className="text-primary font-bold text-lg">Elixir</div>
+              <div className="text-primary font-bold text-lg">Crimson</div>
             </motion.div>
           </div>
         </div>

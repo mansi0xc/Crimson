@@ -6,8 +6,7 @@ import Image from "next/image"
 import { Heart, Droplet, MapPin, Building2, Award, ChevronRight, ArrowRight, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { AnimatedSection } from "@/components/utils/animated-section"
-import { BloodDropAnimation } from "@/components/utils/blood-drop-animation"
+
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
 
 import HeroAnimation from "@/components/utils/hero-animation";
@@ -65,7 +64,7 @@ export default function Home() {
                   Be the Reason <span className="text-red-600">Someone Lives</span>
                 </h1>
                 <p className="text-lg text-gray-600 max-w-[600px]">
-                  Elixir connects hospitals, NGOs, and donors in a seamless ecosystem, ensuring every donation is
+                  Crimson connects hospitals, NGOs, and donors in a seamless ecosystem, ensuring every donation is
                   meticulously recorded and incentivized through blockchain technology.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -142,7 +141,7 @@ export default function Home() {
           <div className="container">
             <div className="text-center max-w-3xl mx-auto mb-16">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-                How <span className="text-red-600">Elixir</span> Works
+                How <span className="text-red-600">Crimson</span> Works
               </h2>
               <p className="text-lg text-gray-600">
                 Our blockchain platform simplifies the donation process while ensuring security and transparency.
@@ -194,7 +193,7 @@ export default function Home() {
               <div className="space-y-8">
                 <div>
                   <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-                    Why Choose <span className="text-red-600">Elixir</span>?
+                    Why Choose <span className="text-red-600">Crimson</span>?
                   </h2>
                   <p className="text-lg text-gray-600">
                     Our blockchain platform offers unique advantages for all participants in the donation ecosystem.
@@ -243,7 +242,7 @@ export default function Home() {
                 Success <span className="text-red-600">Stories</span>
               </h2>
               <p className="text-lg text-gray-600">
-                Hear from the people who have experienced the impact of Elixir's blockchain donation platform.
+                Hear from the people who have experienced the impact of Crimson's blockchain donation platform.
               </p>
             </div>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -260,14 +259,14 @@ export default function Home() {
                   role: "Hospital Administrator",
                   image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
                   quote:
-                    "Elixir has revolutionized how we organize blood camps. The blockchain verification gives donors confidence in our process.",
+                    "Crimson has revolutionized how we organize blood camps. The blockchain verification gives donors confidence in our process.",
                 },
                 {
                   name: "Priya Sharma",
                   role: "NGO Coordinator",
                   image: "https://images.unsplash.com/photo-1624561172888-ac93c696e10c?q=80&w=2592&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
                   quote:
-                    "The transparency of Elixir's blockchain platform has helped us build trust with our donors and hospital partners.",
+                    "The transparency of Crimson's blockchain platform has helped us build trust with our donors and hospital partners.",
                 },
               ].map((testimonial, index) => (
                 <Card key={index} className="bg-gray-50 border-none">
@@ -300,7 +299,7 @@ export default function Home() {
               <div className="space-y-4">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Ready to make a difference?</h2>
                 <p className="text-xl opacity-90">
-                  Join Elixir today and be part of our blockchain-powered donation ecosystem.
+                  Join Crimson today and be part of our blockchain-powered donation ecosystem.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-end">
@@ -325,7 +324,7 @@ export default function Home() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Droplet className="h-6 w-6 text-red-500" />
-                <span className="text-xl font-bold text-white">Elixir</span>
+                <span className="text-xl font-bold text-white">Crimson</span>
               </div>
               <p className="text-sm mb-4">
                 Blockchain-powered platform transforming the landscape of blood and organ donation.
@@ -385,7 +384,7 @@ export default function Home() {
                       d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                     />
                   </svg>
-                  <span>contact@elixir.org</span>
+                  <span>contact@Crimson.org</span>
                 </li>
                 <li className="flex items-center gap-2 text-sm">
                   <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -402,7 +401,7 @@ export default function Home() {
             </div>
           </div>
           <div className="pt-8 border-t border-gray-800 text-sm text-center">
-            <p>&copy; {new Date().getFullYear()} Elixir. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Crimson. All rights reserved.</p>
           </div>
         </div>
       </footer>
