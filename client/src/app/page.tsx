@@ -401,7 +401,7 @@ export default function Home() {
             </div>
           </div>
           <div className="pt-8 border-t border-gray-800 text-sm text-center">
-            <p>&copy; {new Date().getFullYear()} Crimson. All rights reserved.</p>
+            <p>&copy; 9th March 2025 Crimson. All rights reserved.</p>
           </div>
         </div>
       </footer>

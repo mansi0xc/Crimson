@@ -27,7 +27,7 @@ export function Navbar() {
           {/* Logo - Always visible */}
           <Link href="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80">
             <Droplet className="h-6 w-6 text-primary" />
-            <span className="font-rubik text-xl font-bold">Elixir</span>
+            <span className="font-rubik text-xl font-bold">Crimson</span>
           </Link>
         </div>
 
