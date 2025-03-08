@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+/**
+ * @title Creation contract
+ * @notice Contract to create and manage blood donation camps and hospitals
+ */
+
 contract Creation {
     /**Errors */
     error BloodCamp__CampDoesNotExist();
@@ -31,8 +36,8 @@ contract Creation {
     /**State Variables */
     uint256[] public campIds;
     uint256[] public hospitalIds;
-    mapping(uint256 => Camp) private camps;
-    mapping(uint256 => Hospital) private hospitals;
+    mapping(uint256 => Camp) internal camps;
+    mapping(uint256 => Hospital) internal hospitals;
 
     modifier campExists(uint256 _id) {
         if (camps[_id].id == 0) {
