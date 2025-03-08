@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title OrganDonationNFT contract
- * @author Mansi
  * @notice Contract will issue NFT upon succesful organ donation
  */
 
@@ -41,7 +40,6 @@ contract OrganDonationNFT is ERC721, Ownable {
 
 /**
  * @title OrganDonation contract
- * @author Mansi
  * @notice Contract which facilitates organ donation
  */
 contract OrganDonation {

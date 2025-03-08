@@ -144,6 +144,12 @@ contract BloodCampNFT is ERC721, Ownable {
     }
 }
 
+/**
+ * @title BloodCamp contract
+ * @author Mansi
+ * @notice Contract to deploy and manage BloodCamps
+ */
+
 contract BloodCamp {
     /**Errors */
     error BloodCamp__CampDoesNotExist();
@@ -173,7 +179,7 @@ contract BloodCamp {
     }
 
     struct vial {
-        string vid;
+        string id;
         string donor;
         BloodType bloodType;
         string camp;
@@ -190,15 +196,10 @@ contract BloodCamp {
 
     /**State Variables */
     uint256[] public campIds;
-    uint256[] public hospitalIds; // Added this missing array
     mapping(uint256 => Camp) private camps;
     mapping(uint256 => Hospital) private hospitals;
     mapping(uint256 => mapping(BloodType => uint256)) private campInventory;
     mapping(uint256 => mapping(BloodType => mapping(string => vial))) private hospitalInventory;
-    
-    // Track vial IDs by hospital and blood type
-    mapping(uint256 => mapping(BloodType => string[])) private hospitalVialIds;
-    
     mapping(uint256 => address[]) private registeredUsers;
     mapping(uint256 => address[]) private donatedUsers;
 
@@ -236,12 +237,6 @@ contract BloodCamp {
         uint256 tokenId,
         string uri
     );
-    event HospitalRegistered(
-        uint256 indexed id,
-        string name,
-        string city,
-        address owner
-    );
 
     constructor() {
         bloodCampNFT = new BloodCampNFT();
@@ -275,21 +270,21 @@ contract BloodCamp {
     }
 
     function createHospital(
-        uint256 _hid,
+        uint256 _id,
         string memory _name,
         string memory _city
     ) public {
-        require(hospitals[_hid].hid == 0, "Hospital ID already exists");
+        require(hospitals[_id].id == 0, "Hospital ID already exists");
 
-        hospitals[_hid] = Hospital({
-            hid: _hid,
+        hospitals[_id] = Hospital({
+            hid: _id,
             name: _name,
             city: _city,
             owner: msg.sender
         });
 
-        hospitalIds.push(_hid);
-        emit HospitalRegistered(_hid, _name, _city, msg.sender);
+        hospitalIds.push(_id);
+        emit HospitalRegistered(_id, _name, _city, msg.sender);
     }
 
     function updateInventory(
@@ -302,7 +297,7 @@ contract BloodCamp {
     ) public onlyCampOwner(_id) campExists(_id) {
         campInventory[_id][_bloodType] += 1;
         hospitalInventory[_id][_bloodType][_vid] = vial({
-            vid: _vid,
+            id: _vid,
             donor: _donor,
             bloodType: _bloodType,
             camp: _camp,
@@ -320,9 +315,6 @@ contract BloodCamp {
     ) public onlyCampOwner(_id) campExists(_id) {
         campInventory[_id][_bloodType] -= 1;
         hospitalInventory[_hospitalId][_bloodType][_vid].status = "In Hospital";
-        
-        // Add vial ID to the hospital's tracking array
-        hospitalVialIds[_hospitalId][_bloodType].push(_vid);
     }
 
     function vialUsed(
@@ -331,7 +323,6 @@ contract BloodCamp {
         string memory _vid
     ) public {
         hospitalInventory[_hospitalId][_bloodType][_vid].status = "Used";
-        // Note: We're keeping the vial in the tracking array for record-keeping
     }
     
     function addRegisteredUser(
@@ -387,18 +378,7 @@ contract BloodCamp {
 
     function getHospitalInventory(
         uint256 _id,
-        BloodType _bloodType
-    ) public view returns (vial[] memory) {
-        // Check if the hospital exists
-        require(hospitals[_id].hid != 0, "Hospital does not exist");
-        
-        string[] memory vialIds = hospitalVialIds[_id][_bloodType];
-        vial[] memory result = new vial[](vialIds.length);
-        for (uint256 i = 0; i < vialIds.length; i++) {
-            result[i] = hospitalInventory[_id][_bloodType][vialIds[i]];
-        }
-        return result;
-    }
+        BloodType _bloodType)
 
     function getRegisteredUsers(
         uint256 _id
