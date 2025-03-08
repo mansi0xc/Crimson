@@ -42,15 +42,11 @@ export function Navbar() {
           <Link href="/dashboard" className="transition-colors hover:text-primary duration-200">
             Dashboard
           </Link>
-          
-          <Link href="/community" className="transition-colors hover:text-primary duration-200">
+          {/* <Link href="/community" className="transition-colors hover:text-primary duration-200">
             Community
-          </Link>
+          </Link> */}
           <Link href="/hospital-dashboard" className="transition-colors hover:text-primary duration-200">
             Hospital Dashboard
-          </Link>
-          <Link href="/upload" className="transition-colors hover:text-primary duration-200">
-            Upload
           </Link>
           <Link href="/createcamp" className="transition-colors hover:text-primary duration-200">
             Create Camp
