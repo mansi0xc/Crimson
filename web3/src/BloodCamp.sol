@@ -1,154 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-
-/**
- * @title BloodCampNFT contract
- * @author Mansi
- * @notice Contract to deploy and manage BloodCampNFTs
- */
-
-contract BloodCampNFT is ERC721, Ownable {
-    /**Errors */
-    error BloodCampNFT__URINonExistentToken();
-    error BloodCampNFT__NonExistentToken();
-    error BloodCampNFT__UserAlreadyExists();
-    error BloodCampNFT__NameEmpty();
-    error BloodCampNFT__UserDoesNotExist();
-
-    /**State Variables */
-    uint256 private _tokenIdCounter;
-    mapping(uint256 => string) private _tokenURIs; // Stores metadata URIs
-
-    /**
-     * @dev Constructor to initialize the contract
-     * @notice Initializes the contract with the name and symbol of the NFT
-     */
-    constructor() ERC721("BloodCampNFT", "BCNFT") Ownable(msg.sender) {}
-
-    /**
-     * @dev Function to mint a NFT upon successful blood donation
-     * @param to Address of the recipient
-     * @param uri Metadata URI of the NFT
-     * @return tokenId of the minted NFT
-     */
-
-    function mint(
-        address to,
-        string memory uri
-    ) public onlyOwner returns (uint256) {
-        _tokenIdCounter++;
-        uint256 tokenId = _tokenIdCounter;
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
-        return tokenId;
-    }
-
-    /**
-     * @dev Function to check if a token exists
-     */
-    function _exists(uint256 tokenId) internal view returns (bool) {
-        return _ownerOf(tokenId) != address(0);
-    }
-
-    /**
-     * @dev Function to set the metadata URI of a token
-     */
-    function _setTokenURI(uint256 tokenId, string memory uri) internal {
-        require(_exists(tokenId), "URI set of nonexistent token");
-        _tokenURIs[tokenId] = uri;
-    }
-
-    /**
-     * @dev Function to get the metadata URI of a token
-     * @param tokenId Token ID to get the URI for
-     * @return string Metadata URI of the token
-     */
-    function tokenURI(
-        uint256 tokenId
-    ) public view override returns (string memory) {
-        require(_exists(tokenId), "Token does not exist");
-        return _tokenURIs[tokenId];
-    }
-
-    /**
-     * @dev Function to set the metadata URI of a token
-     */
-    function setTokenURI(uint256 tokenId, string memory newTokenURI) public {
-        _setTokenURI(tokenId, newTokenURI);
-    }
-
-    /**State Variables */
-    struct UserInfo {
-        string name;
-        address userAddress;
-    }
-
-    BloodCampNFT public bloodCampNFT = BloodCampNFT(0xAF514448B349AB2a21F9A27D3f9C448Ceedd067f);
-
-    mapping(address => UserInfo) private users;
-
-    event UserCreated(address indexed user, string name);
-
-    // constructor(address _bloodCampNFTAddress) {
-    //     bloodCampNFT = BloodCampNFT(_bloodCampNFTAddress);
-    // }
-
-    modifier userDoesNotExist(address _user) {
-        require(bytes(users[_user].name).length == 0, "User already exists");
-        _;
-    }
-
-    function createUser(string memory _name) public userDoesNotExist(msg.sender) {
-        require(bytes(_name).length > 0, "Name cannot be empty");
-        users[msg.sender] = UserInfo({
-            name: _name,
-            userAddress: msg.sender
-        });
-        emit UserCreated(msg.sender, _name);
-    }
-
-    function getUser(address _user) public view returns (string memory, address) {
-        require(bytes(users[_user].name).length > 0, "User does not exist");
-        return (users[_user].name, users[_user].userAddress);
-    }
-
-    function getOwnedNFTs(address _user) public view returns (uint256[] memory) {
-        uint256 maxIterations = 1000;
-        uint256[] memory tempOwned = new uint256[](maxIterations);
-        uint256 count = 0;
-
-        for (uint256 tokenId = 1; tokenId <= maxIterations; tokenId++) {
-            try bloodCampNFT.ownerOf(tokenId) returns (address owner) {
-                if (owner == _user) {
-                    tempOwned[count] = tokenId;
-                    count++;
-                }
-            } catch {
-                break;
-            }
-        }
-
-        uint256[] memory ownedTokens = new uint256[](count);
-        for (uint256 i = 0; i < count; i++) {
-            ownedTokens[i] = tempOwned[i];
-        }
-        string[] memory uri = new string[](count);
-        for (uint256 i = 0; i < count; i++) {
-            uri[i] = bloodCampNFT.tokenURI(ownedTokens[i]);
-        }
-        
-        return ownedTokens;
-    }
-}
-
+import {BloodCampNFT} from "./BloodCampNFT.sol";
+ 
 contract BloodCamp {
     /**Errors */
     error BloodCamp__CampDoesNotExist();
     error BloodCamp__CampAlreadyExists();
     error BloodCamp__CampNotOwner();
+    error BloodCamp__HospitalDoesNotExist();
+    error BloodCamp__HospitalAlreadyExists();
+    error BloodCamp__HospitalNotOwner();
+    error BloodCamp__InsufficientInventory();
+    error BloodCamp__VialNotFound();
+    error BloodCamp__InvalidOperation();
 
     /**Type Declarations */
     struct Camp {
@@ -172,13 +37,21 @@ contract BloodCamp {
         AB_NEG //7
     }
 
-    struct vial {
+    enum VialStatus {
+        IN_CAMP,
+        IN_HOSPITAL,
+        USED,
+        EXPIRED
+    }
+
+    struct Vial {
         string vid;
         string donor;
         BloodType bloodType;
         string camp;
         string date;
-        string status;
+        VialStatus status;
+        uint256 timestamp; // When the vial was created/updated
     }
 
     struct Hospital {
@@ -190,14 +63,15 @@ contract BloodCamp {
 
     /**State Variables */
     uint256[] public campIds;
-    uint256[] public hospitalIds; // Added this missing array
+    uint256[] public hospitalIds;
     mapping(uint256 => Camp) private camps;
     mapping(uint256 => Hospital) private hospitals;
     mapping(uint256 => mapping(BloodType => uint256)) private campInventory;
-    mapping(uint256 => mapping(BloodType => mapping(string => vial))) private hospitalInventory;
+    mapping(uint256 => mapping(BloodType => mapping(string => Vial))) private vialRegistry;
     
     // Track vial IDs by hospital and blood type
     mapping(uint256 => mapping(BloodType => string[])) private hospitalVialIds;
+    mapping(uint256 => mapping(string => bool)) private vialExists;
     
     mapping(uint256 => address[]) private registeredUsers;
     mapping(uint256 => address[]) private donatedUsers;
@@ -205,15 +79,37 @@ contract BloodCamp {
     BloodCampNFT public bloodCampNFT;
 
     modifier onlyCampOwner(uint256 _id) {
-        require(
-            camps[_id].owner == msg.sender,
-            "Only the camp owner can modify this camp"
-        );
+        if (camps[_id].owner != msg.sender) {
+            revert BloodCamp__CampNotOwner();
+        }
+        _;
+    }
+
+    modifier onlyHospitalOwner(uint256 _id) {
+        if (hospitals[_id].owner != msg.sender) {
+            revert BloodCamp__HospitalNotOwner();
+        }
         _;
     }
 
     modifier campExists(uint256 _id) {
-        require(camps[_id].id != 0, "Camp does not exist");
+        if (camps[_id].id == 0) {
+            revert BloodCamp__CampDoesNotExist();
+        }
+        _;
+    }
+
+    modifier hospitalExists(uint256 _id) {
+        if (hospitals[_id].hid == 0) {
+            revert BloodCamp__HospitalDoesNotExist();
+        }
+        _;
+    }
+
+    modifier vialExistsModifier(string memory _vid) {
+        if (!vialExists[0][_vid]) {
+            revert BloodCamp__VialNotFound();
+        }
         _;
     }
 
@@ -226,7 +122,19 @@ contract BloodCamp {
     );
     event InventoryUpdated(
         uint256 indexed id,
-        BloodType bloodType
+        BloodType bloodType,
+        string vialId
+    );
+    event VialTransferred(
+        uint256 indexed fromCampId,
+        uint256 indexed toHospitalId,
+        BloodType bloodType,
+        string vialId
+    );
+    event VialStatusChanged(
+        uint256 indexed entityId,
+        string vialId,
+        VialStatus status
     );
     event UserRegistered(uint256 indexed id, address user);
     event UserDonated(uint256 indexed id, address user);
@@ -258,7 +166,9 @@ contract BloodCamp {
         string memory _lat,
         string memory _long
     ) public {
-        require(camps[_id].id == 0, "Camp ID already exists");
+        if (camps[_id].id != 0) {
+            revert BloodCamp__CampAlreadyExists();
+        }
 
         camps[_id] = Camp({
             id: _id,
@@ -279,7 +189,9 @@ contract BloodCamp {
         string memory _name,
         string memory _city
     ) public {
-        require(hospitals[_hid].hid == 0, "Hospital ID already exists");
+        if (hospitals[_hid].hid != 0) {
+            revert BloodCamp__HospitalAlreadyExists();
+        }
 
         hospitals[_hid] = Hospital({
             hid: _hid,
@@ -300,16 +212,26 @@ contract BloodCamp {
         string memory _date,
         string memory _camp
     ) public onlyCampOwner(_id) campExists(_id) {
+        // Check that vial ID is unique
+        if (vialExists[0][_vid]) {
+            revert BloodCamp__InvalidOperation();
+        }
+
         campInventory[_id][_bloodType] += 1;
-        hospitalInventory[_id][_bloodType][_vid] = vial({
+        vialRegistry[_id][_bloodType][_vid] = Vial({
             vid: _vid,
             donor: _donor,
             bloodType: _bloodType,
             camp: _camp,
             date: _date,
-            status: "In Camp"
+            status: VialStatus.IN_CAMP,
+            timestamp: block.timestamp
         });
-        emit InventoryUpdated(_id, _bloodType);
+        
+        // Mark that this vial now exists
+        vialExists[0][_vid] = true;
+        
+        emit InventoryUpdated(_id, _bloodType, _vid);
     }
 
     function transferVialToHospital(
@@ -317,21 +239,77 @@ contract BloodCamp {
         uint256 _hospitalId,
         BloodType _bloodType,
         string memory _vid
-    ) public onlyCampOwner(_id) campExists(_id) {
+    ) public onlyCampOwner(_id) campExists(_id) hospitalExists(_hospitalId) vialExistsModifier(_vid) {
+        // Check if there's enough inventory
+        if (campInventory[_id][_bloodType] == 0) {
+            revert BloodCamp__InsufficientInventory();
+        }
+        
+        // Verify the vial is in the camp and has correct status
+        Vial storage vial = vialRegistry[_id][_bloodType][_vid];
+        if (vial.status != VialStatus.IN_CAMP) {
+            revert BloodCamp__InvalidOperation();
+        }
+        
+        // Update inventory counts
         campInventory[_id][_bloodType] -= 1;
-        hospitalInventory[_hospitalId][_bloodType][_vid].status = "In Hospital";
+        
+        // Update vial status
+        vialRegistry[_id][_bloodType][_vid].status = VialStatus.IN_HOSPITAL;
+        vialRegistry[_id][_bloodType][_vid].timestamp = block.timestamp;
         
         // Add vial ID to the hospital's tracking array
         hospitalVialIds[_hospitalId][_bloodType].push(_vid);
+        
+        emit VialTransferred(_id, _hospitalId, _bloodType, _vid);
+        emit VialStatusChanged(_hospitalId, _vid, VialStatus.IN_HOSPITAL);
     }
 
     function vialUsed(
         uint256 _hospitalId,
         BloodType _bloodType,
         string memory _vid
-    ) public {
-        hospitalInventory[_hospitalId][_bloodType][_vid].status = "Used";
-        // Note: We're keeping the vial in the tracking array for record-keeping
+    ) public onlyHospitalOwner(_hospitalId) hospitalExists(_hospitalId) vialExistsModifier(_vid) {
+        // Verify the vial is in the hospital
+        Vial storage vial = vialRegistry[_hospitalId][_bloodType][_vid];
+        if (vial.status != VialStatus.IN_HOSPITAL) {
+            revert BloodCamp__InvalidOperation();
+        }
+        
+        vialRegistry[_hospitalId][_bloodType][_vid].status = VialStatus.USED;
+        vialRegistry[_hospitalId][_bloodType][_vid].timestamp = block.timestamp;
+        
+        emit VialStatusChanged(_hospitalId, _vid, VialStatus.USED);
+    }
+    
+    function markVialExpired(
+        uint256 _entityId,  // Can be camp or hospital ID
+        BloodType _bloodType,
+        string memory _vid
+    ) public vialExistsModifier(_vid) {
+        Vial storage vial = vialRegistry[_entityId][_bloodType][_vid];
+        bool isAuthorized = false;
+        
+        // Check if sender is authorized (either camp owner or hospital owner)
+        if (vial.status == VialStatus.IN_CAMP && camps[_entityId].owner == msg.sender) {
+            isAuthorized = true;
+        } else if (vial.status == VialStatus.IN_HOSPITAL && hospitals[_entityId].owner == msg.sender) {
+            isAuthorized = true;
+        }
+        
+        if (!isAuthorized) {
+            revert BloodCamp__InvalidOperation();
+        }
+        
+        vialRegistry[_entityId][_bloodType][_vid].status = VialStatus.EXPIRED;
+        vialRegistry[_entityId][_bloodType][_vid].timestamp = block.timestamp;
+        
+        // If in camp, update inventory
+        if (vial.status == VialStatus.IN_CAMP) {
+            campInventory[_entityId][_bloodType] -= 1;
+        }
+        
+        emit VialStatusChanged(_entityId, _vid, VialStatus.EXPIRED);
     }
     
     function addRegisteredUser(
@@ -361,13 +339,45 @@ contract BloodCamp {
     }
 
     /*
-    *Getter Functions 
+    * Helper Functions 
+    */
+    
+    function getBloodTypeString(BloodType _bloodType) public pure returns (string memory) {
+        if (_bloodType == BloodType.O_POS) return "O+";
+        if (_bloodType == BloodType.O_NEG) return "O-";
+        if (_bloodType == BloodType.A_POS) return "A+";
+        if (_bloodType == BloodType.A_NEG) return "A-";
+        if (_bloodType == BloodType.B_POS) return "B+";
+        if (_bloodType == BloodType.B_NEG) return "B-";
+        if (_bloodType == BloodType.AB_POS) return "AB+";
+        if (_bloodType == BloodType.AB_NEG) return "AB-";
+        
+        revert("Invalid blood type");
+    }
+    
+    function getVialStatusString(VialStatus _status) public pure returns (string memory) {
+        if (_status == VialStatus.IN_CAMP) return "In Camp";
+        if (_status == VialStatus.IN_HOSPITAL) return "In Hospital";
+        if (_status == VialStatus.USED) return "Used";
+        if (_status == VialStatus.EXPIRED) return "Expired";
+        
+        revert("Invalid vial status");
+    }
+
+    /*
+    * Getter Functions 
     */
 
     function getCamp(
         uint256 _id
     ) public view campExists(_id) returns (Camp memory) {
         return camps[_id];
+    }
+
+    function getHospital(
+        uint256 _id
+    ) public view hospitalExists(_id) returns (Hospital memory) {
+        return hospitals[_id];
     }
 
     function getAllCamps() public view returns (Camp[] memory) {
@@ -378,6 +388,14 @@ contract BloodCamp {
         return allCamps;
     }
 
+    function getAllHospitals() public view returns (Hospital[] memory) {
+        Hospital[] memory allHospitals = new Hospital[](hospitalIds.length);
+        for (uint256 i = 0; i < hospitalIds.length; i++) {
+            allHospitals[i] = hospitals[hospitalIds[i]];
+        }
+        return allHospitals;
+    }
+
     function getCampInventory(
         uint256 _id,
         BloodType _bloodType
@@ -385,17 +403,23 @@ contract BloodCamp {
         return campInventory[_id][_bloodType];
     }
 
+    function getVial(
+        uint256 _entityId,
+        BloodType _bloodType,
+        string memory _vid
+    ) public view vialExistsModifier(_vid) returns (Vial memory) {
+        return vialRegistry[_entityId][_bloodType][_vid];
+    }
+
     function getHospitalInventory(
         uint256 _id,
         BloodType _bloodType
-    ) public view returns (vial[] memory) {
-        // Check if the hospital exists
-        require(hospitals[_id].hid != 0, "Hospital does not exist");
-        
+    ) public view hospitalExists(_id) returns (Vial[] memory) {
         string[] memory vialIds = hospitalVialIds[_id][_bloodType];
-        vial[] memory result = new vial[](vialIds.length);
+        Vial[] memory result = new Vial[](vialIds.length);
+        
         for (uint256 i = 0; i < vialIds.length; i++) {
-            result[i] = hospitalInventory[_id][_bloodType][vialIds[i]];
+            result[i] = vialRegistry[_id][_bloodType][vialIds[i]];
         }
         return result;
     }
