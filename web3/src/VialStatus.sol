@@ -18,7 +18,7 @@ contract VialStatus is Creation, Donation, VialRegistration {
     error VialStatus__TooManyApprovers();
 
     // Constants
-    uint256 private constant REQUIRED_APPROVALS = 5;
+    uint256 private constant REQUIRED_APPROVALS = 7;
     uint256 private constant MAX_APPROVERS = 10;
 
     // Multi-signature approvers management
