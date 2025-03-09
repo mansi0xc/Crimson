@@ -7,15 +7,8 @@ import {Donation} from "./Donation.sol";
 
 contract VialRegistration is Creation, Donation {
     /**Errors */
-    // error BloodCamp__CampDoesNotExist();
-    // error BloodCamp__CampAlreadyExists();
-    error BloodCamp__CampNotOwner();
-    // error BloodCamp__HospitalDoesNotExist();
-    // error BloodCamp__HospitalAlreadyExists();
-    error BloodCamp__HospitalNotOwner();
-    error BloodCamp__InsufficientInventory();
-    error BloodCamp__VialNotFound();
-    error BloodCamp__InvalidOperation();
+    error VialRegistration__VialNotFound();
+    error VialRegistration__InvalidOperation();
 
     enum BloodType {
         O_POS, //0
@@ -31,6 +24,7 @@ contract VialRegistration is Creation, Donation {
     enum VialStatus {
         IN_CAMP,
         IN_HOSPITAL,
+        IN_TEST_LAB,
         USED,
         EXPIRED
     }
@@ -45,16 +39,16 @@ contract VialRegistration is Creation, Donation {
         uint256 timestamp; // When the vial was created/updated
     }
 
-    mapping(uint256 => mapping(BloodType => uint256)) private campInventory;
-    mapping(uint256 => mapping(BloodType => mapping(string => Vial))) private vialRegistry;
+    mapping(uint256 => mapping(BloodType => uint256)) internal campInventory;
+    mapping(uint256 => mapping(BloodType => mapping(string => Vial))) internal vialRegistry;
     
     // Track vial IDs by hospital and blood type
-    mapping(uint256 => mapping(BloodType => string[])) private hospitalVialIds;
-    mapping(uint256 => mapping(string => bool)) private vialExists;
+    mapping(uint256 => mapping(BloodType => string[])) internal hospitalVialIds;
+    mapping(uint256 => mapping(string => bool)) internal vialExists;
 
     modifier vialExistsModifier(string memory _vid) {
         if (!vialExists[0][_vid]) {
-            revert BloodCamp__VialNotFound();
+            revert VialRegistration__VialNotFound();
         }
         _;
     }
@@ -63,17 +57,6 @@ contract VialRegistration is Creation, Donation {
         uint256 indexed id,
         BloodType bloodType,
         string vialId
-    );
-    event VialTransferred(
-        uint256 indexed fromCampId,
-        uint256 indexed toHospitalId,
-        BloodType bloodType,
-        string vialId
-    );
-    event VialStatusChanged(
-        uint256 indexed entityId,
-        string vialId,
-        VialStatus status
     );
 
     function updateInventory(
@@ -86,7 +69,7 @@ contract VialRegistration is Creation, Donation {
     ) public onlyCampOwner(_id) campExists(_id) {
         // Check that vial ID is unique
         if (vialExists[0][_vid]) {
-            revert BloodCamp__InvalidOperation();
+            revert VialRegistration__InvalidOperation();
         }
 
         campInventory[_id][_bloodType] += 1;

@@ -12,24 +12,8 @@ import {BloodCampNFT} from "./BloodCampNFT.sol";
 
 contract Donation is Creation {
     /**Errors */
-    //error BloodCamp__CampDoesNotExist();
-    //error BloodCamp__CampAlreadyExists();
-    error BloodCamp__CampNotOwner();
-    //error BloodCamp__HospitalDoesNotExist();
-    //error BloodCamp__HospitalAlreadyExists();
-    error BloodCamp__HospitalNotOwner();
-
-    /**Type Declarations */
-    // enum BloodType {
-    //     O_POS, //0
-    //     O_NEG, //1
-    //     A_POS, //2
-    //     A_NEG, //3
-    //     B_POS, //4
-    //     B_NEG, //5
-    //     AB_POS, //6
-    //     AB_NEG //7
-    // }
+    error Donation__CampNotOwner();
+    error Donation__HospitalNotOwner();
 
     mapping(uint256 => address[]) private donatedUsers;
 
@@ -38,14 +22,14 @@ contract Donation is Creation {
 
     modifier onlyCampOwner(uint256 _id) {
         if (camps[_id].owner != msg.sender) {
-            revert BloodCamp__CampNotOwner();
+            revert Donation__CampNotOwner();
         }
         _;
     }
 
     modifier onlyHospitalOwner(uint256 _id) {
         if (hospitals[_id].owner != msg.sender) {
-            revert BloodCamp__HospitalNotOwner();
+            revert Donation__HospitalNotOwner();
         }
         _;
     }

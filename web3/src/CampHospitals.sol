@@ -8,12 +8,10 @@ pragma solidity ^0.8.20;
 
 contract Creation {
     /**Errors */
-    error BloodCamp__CampDoesNotExist();
-    error BloodCamp__CampAlreadyExists();
-    // error BloodCamp__CampNotOwner();
-    error BloodCamp__HospitalDoesNotExist();
-    error BloodCamp__HospitalAlreadyExists();
-    // error BloodCamp__HospitalNotOwner();
+    error CampHospitals__CampDoesNotExist();
+    error CampHospitals__CampAlreadyExists();
+    error CampHospitals__HospitalDoesNotExist();
+    error CampHospitals__HospitalAlreadyExists();
 
     /**Type Declarations */
     struct Camp {
@@ -41,14 +39,14 @@ contract Creation {
 
     modifier campExists(uint256 _id) {
         if (camps[_id].id == 0) {
-            revert BloodCamp__CampDoesNotExist();
+            revert CampHospitals__CampDoesNotExist();
         }
         _;
     }
 
     modifier hospitalExists(uint256 _id) {
         if (hospitals[_id].hid == 0) {
-            revert BloodCamp__HospitalDoesNotExist();
+            revert CampHospitals__HospitalDoesNotExist();
         }
         _;
     }
@@ -77,7 +75,7 @@ contract Creation {
         string memory _long
     ) public {
         if (camps[_id].id != 0) {
-            revert BloodCamp__CampAlreadyExists();
+            revert CampHospitals__CampAlreadyExists();
         }
 
         camps[_id] = Camp({
@@ -100,7 +98,7 @@ contract Creation {
         string memory _city
     ) public {
         if (hospitals[_hid].hid != 0) {
-            revert BloodCamp__HospitalAlreadyExists();
+            revert CampHospitals__HospitalAlreadyExists();
         }
 
         hospitals[_hid] = Hospital({
