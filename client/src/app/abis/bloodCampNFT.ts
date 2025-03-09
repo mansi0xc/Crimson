@@ -1,6 +1,6 @@
-export const contract_address = '0xa8c22c993F5BC6625FA1A96fC23D92855F4E2F1c'
+export const contract_address = '0x9Bf871045157cEB7D5084c9263EACecB78C865BD'
 
-export const abi = [
+export const abi =[
     {
         "type": "constructor",
         "inputs": [],
@@ -517,6 +517,31 @@ export const abi = [
             }
         ],
         "anonymous": false
+    },
+    {
+        "type": "error",
+        "name": "BloodCampNFT__NameEmpty",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "BloodCampNFT__NonExistentToken",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "BloodCampNFT__URINonExistentToken",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "BloodCampNFT__UserAlreadyExists",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "BloodCampNFT__UserDoesNotExist",
+        "inputs": []
     },
     {
         "type": "error",

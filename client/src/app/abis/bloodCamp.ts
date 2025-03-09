@@ -1,4 +1,4 @@
-export const contract_address= '0xdCf97Db48b9220F89eCED4336F39F3b9e58805C7'
+export const contract_address= '0x0f370764f846746f535671dd1828A8c44ceEC9F2'
 
 export const abi = [
     {
@@ -456,5 +456,20 @@ export const abi = [
             }
         ],
         "anonymous": false
+    },
+    {
+        "type": "error",
+        "name": "BloodCamp__CampAlreadyExists",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "BloodCamp__CampDoesNotExist",
+        "inputs": []
+    },
+    {
+        "type": "error",
+        "name": "BloodCamp__CampNotOwner",
+        "inputs": []
     }
 ]
